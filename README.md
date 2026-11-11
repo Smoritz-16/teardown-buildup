@@ -1,4 +1,6 @@
-# Teardown: V10 engine & Daytona chronograph
+# teardown-buildup
+
+Interactive teardowns of a V10 engine and a Rolex Daytona chronograph.
 
 Two interactive 3D teardowns, each one offline HTML page, plus a landing page (`index.html`).
 
