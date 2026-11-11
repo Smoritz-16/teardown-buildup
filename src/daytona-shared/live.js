@@ -8,6 +8,7 @@ import {warmComposer} from '../kit/warm.js';
 import {amplitude, balance, chronoHands, chronoRunning, COLUMN_STEP, escAngle, fmtElapsed, forkAngle, H_PER_CROWN_TURN, H_PER_ROTOR_TURN, period, TRAIN, trainAngles, trainSeconds, W} from './kin.js';
 import {P} from './movement.js';
 import {createWatchStage} from './stage.js';
+import {actionBar, addHome} from '../site-shared/chrome.js';
 
 const SW = 1600;
 const SH = 900;
@@ -154,14 +155,20 @@ function createConsole(app) {
   const trainSvg = add(`<svg style="position:absolute;left:1326px;top:334px" width="232" height="204"></svg>`);
 
   // ------------------------------------------------------------ chronograph pushers, bottom centre
-  add(`<div class="cp mu" style="position:absolute;left:0;right:0;top:790px;text-align:center;font-weight:500"><span style="color:${C.ink}">CHRONOGRAPH</span> &nbsp;— &nbsp;THE TWO PUSHERS</div>`);
-  btn.start = add(`<div class="tb" style="left:676px;top:810px;width:120px;height:28px;font-size:10px;background:${C.red};color:#fff;border-color:${C.red}">START</div>`);
-  btn.reset = add(`<div class="tb" style="left:804px;top:810px;width:120px;height:28px;font-size:10px">RESET</div>`);
+  add(`<div class="cp mu" style="position:absolute;left:0;right:0;top:790px;text-align:center;font-weight:500"><span style="color:${C.ink}">CHRONOGRAPH</span> &nbsp;— &nbsp;PUSHERS &nbsp;·&nbsp; <span style="color:${C.ink}">LAYERS</span> &nbsp;— &nbsp;OPEN IT UP</div>`);
+  Object.assign(btn, actionBar(ui, [
+    {key: 'start', label: 'START', w: 112},
+    {key: 'reset', label: 'RESET', w: 112},
+    {key: 'rotor', label: 'ROTOR', w: 92, gap: 22},
+    {key: 'xray', label: 'X-RAY', w: 92},
+    {key: 'explode', label: 'EXPLODE', w: 92},
+  ]));
+  addHome(ui);
   const chronoState = add(`<div class="cp mu" style="position:absolute;left:0;right:0;top:848px;text-align:center;font-weight:500"></div>`);
   add(`<div class="cp" style="position:absolute;left:0;right:0;top:872px;text-align:center;font-weight:500;color:${C.faint}">DRAG TO ORBIT &nbsp;·&nbsp; DRAG THE CROWN TO WIND &nbsp;·&nbsp; SPACE START / STOP &nbsp;·&nbsp; R RESET &nbsp;·&nbsp; H HIDES THE OVERLAY</div>`);
 
   // ------------------------------------------------------------ camera, layers, overlays
-  add(`<div class="pn" style="left:1296px;top:720px;width:268px;height:165px"></div>`);
+  add(`<div class="pn" style="left:1296px;top:762px;width:268px;height:123px"></div>`);
   const group = (title, keys, y) => {
     add(`<div class="cp mu" style="position:absolute;left:1305px;top:${y}px;font-weight:500">${title}</div>`);
     let x = 1305;
@@ -177,9 +184,8 @@ function createConsole(app) {
       x += w + 4;
     });
   };
-  group('CAMERA', CAMS, 727);
-  group('LAYERS', LAYERS, 794);
-  group('OVERLAYS', OVER, 838);
+  group('CAMERA', CAMS, 769);
+  group('OVERLAYS', OVER, 836);
 
   // ------------------------------------------------------------ callouts, caption
   const callSvg = add(`<svg style="position:absolute;inset:0;overflow:visible" width="${SW}" height="${SH}"></svg>`);
@@ -323,6 +329,7 @@ function createConsole(app) {
       btn.start.textContent = s.running ? 'STOP' : 'START';
       btn.start.style.background = s.running ? C.ink : C.red;
       btn.start.style.borderColor = s.running ? C.ink : C.red;
+      btn.start.style.color = '#fff';
       btn.reset.style.opacity = s.running ? 0.45 : 1;
       chronoState.innerHTML = `COLUMN WHEEL STEP <b style="color:${C.ink}">${s.pushes % W.ratchet}</b> / ${W.ratchet} &nbsp;·&nbsp; LEVER <b style="color:${C.ink}">${s.running ? 'BETWEEN COLUMNS' : 'ON A COLUMN'}</b> &nbsp;·&nbsp; VERTICAL CLUTCH <b style="color:${s.running ? C.red : C.ink}">${s.running ? 'CLOSED' : 'OPEN'}</b>`;
 

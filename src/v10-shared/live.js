@@ -8,6 +8,7 @@ import {CAMS, createConsole, CUTS, OVERLAYS, RPM_MAX} from './console.js';
 import {makeConsoleFrame, makeCursor, rpmAt, trackAt, camAt, camName, DURATION, SCRIPT, VIEW_FN} from './film.js';
 import {CYL, ORDER} from './kin.js';
 import {createV8Stage} from './stage.js';
+import {actionBar, addHome} from '../site-shared/chrome.js';
 
 const W = 1600;
 const H = 900;
@@ -82,6 +83,22 @@ export function runLive() {
     return [(cx - r.left) / scale, (cy - r.top) / scale];
   };
 
+  // shared site chrome: back to all models, and the main actions in one row
+  addHome(ui.root);
+  const act = actionBar(ui.root, [
+    {key: 'explode', label: 'EXPLODE', w: 104},
+    {key: 'isolate', label: 'ISOLATE', w: 104},
+  ], {top: 760, height: 26});
+  let explode = 0;
+  let exShown = 0;
+  act.explode.addEventListener('click', () => {
+    takeOver();
+    explode = explode ? 0 : 1;
+  });
+  act.isolate.addEventListener('click', () => {
+    takeOver();
+    ov.isolate = ov.isolate ? 0 : 1;
+  });
   const tourChip = document.createElement('div');
   tourChip.className = 'tourchip';
   ui.root.appendChild(tourChip);
@@ -340,7 +357,13 @@ export function runLive() {
     for (const key of ['tx', 'ty', 'tz', 'el', 'd', 'sx', 'sy']) cam[key] += (tgt[key] - cam[key]) * k;
     st.setCut(cut, CYL[cyl - 1].z * 0.001);
     st.eng.setRefract(!!ov.refract);
-    st.frame(th, {...cam, az: cam.az * D2R, el: cam.el * D2R}, {solo: solo ? cyl - 1 : -1, charge: ov.charge, arrows: ov.arrows});
+    exShown += (explode - exShown) * (1 - Math.exp(-dt / 0.5));
+    for (const [k, on] of [['explode', explode], ['isolate', ov.isolate]]) {
+      act[k].style.background = on ? '#d6182b' : '#fff';
+      act[k].style.color = on ? '#fff' : '#16181b';
+      act[k].style.borderColor = on ? '#d6182b' : '#e1e3e6';
+    }
+    st.frame(th, {...cam, az: cam.az * D2R, el: cam.el * D2R, d: cam.d * (1 + 0.45 * exShown), ty: cam.ty + 0.12 * exShown}, {solo: solo ? cyl - 1 : -1, charge: ov.charge, arrows: ov.arrows, explode: exShown});
 
     ui.root.style.display = hidden ? 'none' : '';
     for (const n of ui.root.querySelectorAll('[data-g="charts"]')) n.style.visibility = ov.charts ? '' : 'hidden';

@@ -19,3 +19,6 @@ node sims/build.mjs v10-live daytona-live   # → teardown-out/dist/*.html
 ```
 
 The V10 is adapted from the kit's V8 example. The watch movement is an original study model: its published figures are real, while its tooth counts are illustrative (the ratios, ×16 to the fourth wheel and ×60 to the centre wheel, are the real ones). Not affiliated with Lamborghini, Audi or Rolex.
+
+## Adding a new model
+Every model page uses `src/site-shared/chrome.js`: `addHome(ui)` puts the "← ALL MODELS" link top left, and `actionBar(ui, items)` puts the model's main buttons (start/reset, explode, x-ray and so on) in one centred row at the bottom. Use both in a new page so it matches, then add a card for it on `index.html`.
