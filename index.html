@@ -1,0 +1,1290 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset='utf-8'>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Teardown — V10 engine & Daytona chronograph</title>
+<meta name="description" content="Two interactive 3D teardowns: the Lamborghini Huracán 5.2 V10 and the Rolex Daytona calibre 4131, driven by their real numbers.">
+<style>
+:root{--bg:#ecedef;--panel:#f8f8f9;--ink:#16181b;--mute:#8b8f95;--line:#dcdee2;--red:#d6182b}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none}
+.cp{font-size:11px;font-weight:600;letter-spacing:.18em;text-transform:uppercase}
+.mu{color:var(--mute)}
+header{position:relative;min-height:88vh;display:flex;flex-direction:column;justify-content:flex-end;padding:0 6vw 7vh;overflow:hidden;border-bottom:1px solid var(--line)}
+header canvas{position:absolute;inset:0;width:100%;height:100%;opacity:.55}
+header .scrim{position:absolute;inset:0;background:linear-gradient(180deg,rgba(236,237,239,.15) 0%,rgba(236,237,239,.7) 55%,var(--bg) 100%)}
+nav{position:absolute;top:0;left:0;right:0;display:flex;justify-content:space-between;align-items:center;padding:26px 6vw;z-index:2}
+nav .mark{display:flex;align-items:center;gap:10px;font-weight:700;letter-spacing:-.01em;font-size:17px}
+nav .mark i{width:28px;height:3px;background:var(--red);display:block}
+nav .links{display:flex;gap:26px}
+nav .links a:hover{color:var(--red)}
+.hero{position:relative;z-index:2;max-width:1100px}
+.bar{width:54px;height:4px;background:var(--red);margin-bottom:26px}
+h1{font-size:clamp(46px,8.4vw,128px);line-height:.92;letter-spacing:-.045em;margin:0 0 26px;font-weight:800}
+h1 em{font-style:normal;color:var(--red)}
+.lede{font-size:clamp(16px,1.6vw,20px);line-height:1.5;max-width:620px;margin:0 0 30px;color:#3a3d42}
+.cta{display:flex;gap:12px;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;gap:10px;height:46px;padding:0 20px;border:1px solid var(--ink);font-size:12px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;background:var(--panel)}
+.btn.red{background:var(--red);border-color:var(--red);color:#fff}
+.btn:hover{transform:translateY(-1px)}
+section{padding:12vh 6vw}
+.sh{display:flex;justify-content:space-between;align-items:end;gap:20px;margin-bottom:40px;border-bottom:1px solid var(--line);padding-bottom:18px}
+.sh h2{font-size:clamp(28px,3.6vw,48px);letter-spacing:-.03em;margin:0;font-weight:750}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,520px),1fr));gap:28px}
+.card{background:var(--panel);border:1px solid var(--line);display:flex;flex-direction:column;transition:border-color .25s}
+.card:hover{border-color:var(--ink)}
+.media{position:relative;aspect-ratio:10/7;overflow:hidden;border-bottom:1px solid var(--line);background:#e9eaec}
+.media img,.media canvas{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+.media canvas{opacity:0;transition:opacity .45s}
+.card:hover .media canvas{opacity:1}
+.media .tag{position:absolute;left:14px;top:14px;background:rgba(248,248,249,.92);border:1px solid var(--line);padding:6px 9px;z-index:2}
+.body{padding:26px 26px 28px;display:flex;flex-direction:column;gap:16px;flex:1}
+.body h3{margin:0;font-size:30px;letter-spacing:-.03em;font-weight:750}
+.body h3 span{color:var(--red)}
+.body p{margin:0;line-height:1.55;color:#3a3d42}
+.specs{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.specs div{padding:12px 0 12px 12px;border-left:1px solid var(--line)}
+.specs div:first-child{border-left:none;padding-left:0}
+.specs b{display:block;font-size:22px;letter-spacing:-.02em;font-weight:750}
+.specs small{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--mute)}
+.body ul{margin:0;padding:0;list-style:none;display:grid;gap:7px;font-size:14px;color:#3a3d42}
+.body li::before{content:"";display:inline-block;width:12px;height:2px;background:var(--red);vertical-align:middle;margin-right:10px}
+.body .go{margin-top:auto;display:flex;justify-content:space-between;align-items:center;padding-top:6px}
+.how{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:0;border-top:1px solid var(--line)}
+.how div{padding:28px 26px 30px 0;border-right:1px solid var(--line);margin-right:26px}
+.how div:last-child{border-right:none}
+.how b{display:block;font-size:42px;letter-spacing:-.04em;color:var(--red);font-weight:800;margin-bottom:10px}
+.how p{margin:8px 0 0;line-height:1.55;color:#3a3d42;font-size:15px}
+footer{padding:40px 6vw 56px;border-top:1px solid var(--line);display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;font-size:13px;color:var(--mute)}
+footer a{text-decoration:underline}
+@media (max-width:640px){.specs{grid-template-columns:repeat(2,1fr)}.specs div:nth-child(3){border-left:none;padding-left:0}nav .links{display:none}}
+</style>
+</head>
+<body>
+<header>
+  <canvas class='ascii-fx' data-look='Blueprint' data-engine='plasma' data-charset='blocks' data-colour='paper' data-speed='60' data-cell='13' data-bg='none'></canvas>
+  <div class="scrim"></div>
+  <nav>
+    <div class="mark"><i></i>TEARDOWN</div>
+    <div class="links cp"><a href="v10.html">V10 engine</a><a href="daytona.html">Daytona</a><a href="#how">How it works</a></div>
+  </nav>
+  <div class="hero">
+    <div class="bar"></div>
+    <div class="cp mu" style="margin-bottom:18px">Two machines · taken apart · running</div>
+    <h1>Ten cylinders.<br>Four beats a <em>second.</em></h1>
+    <p class="lede">Interactive 3D teardowns of a Lamborghini Huracán 5.2 V10 and a Rolex Daytona calibre 4131. Every part moves from one input, and every gauge reads the real numbers.</p>
+    <div class="cta">
+      <a class="btn red" href="v10.html">Open the V10 →</a>
+      <a class="btn" href="daytona.html">Open the Daytona →</a>
+    </div>
+  </div>
+</header>
+
+<section id="machines">
+  <div class="sh"><h2>The machines</h2><span class="cp mu">Left alone, each page tours itself</span></div>
+  <div class="grid">
+    <a class="card" href="v10.html">
+      <div class="media">
+        <img src="img/v10.jpg" alt="The V10 seen from the side: ten glass cylinders in two banks over a five-pin crankshaft">
+        <canvas class='geo-fx' data-image='img/v10.jpg' data-geo='EDGE BOX ARCHITECTURE' data-palette='mono' data-motion='none'></canvas>
+        <span class="tag cp">01 · Engine</span>
+      </div>
+      <div class="body">
+        <h3>V10 <span>·</span> Huracán 5.2</h3>
+        <p>A 90° V10 with glass liners, so you watch the charge burn. Ten rods share five crankpins 72° apart, so the firing order 1-6-5-10-2-7-3-8-4-9 gives power strokes 90°, then 54°, apart. That uneven rhythm is where the howl comes from.</p>
+        <div class="specs"><div><b>5.2 L</b><small>Displacement</small></div><div><b>84.5</b><small>Bore mm</small></div><div><b>92.8</b><small>Stroke mm</small></div><div><b>12.5</b><small>Compression</small></div></div>
+        <ul><li>Glass, section and solid cutaways, plus isolate</li><li>Click the firing order to track any cylinder</li><li>Live valve timing and pressure–volume diagram</li></ul>
+        <div class="go"><span class="cp">Open the engine</span><span class="cp" style="color:var(--red)">→</span></div>
+      </div>
+    </a>
+    <a class="card" href="daytona.html">
+      <div class="media">
+        <img src="img/daytona.jpg" alt="The chronograph movement taken apart: rotor, bridges and balance lifted above the main plate">
+        <canvas class='geo-fx' data-image='img/daytona.jpg' data-geo='EDGE BOX ARCHITECTURE' data-palette='mono' data-motion='none'></canvas>
+        <span class="tag cp">02 · Watch</span>
+      </div>
+      <div class="body">
+        <h3>Daytona <span>·</span> Calibre 4131</h3>
+        <p>A self-winding chronograph seen from the case back. The balance swings about ±300° four times a second, the escape wheel moves half a tooth each beat, and the column wheel and vertical clutch start the stopwatch. Drag the crown to wind the mainspring.</p>
+        <div class="specs"><div><b>4 Hz</b><small>28,800 vph</small></div><div><b>72 h</b><small>Reserve</small></div><div><b>47</b><small>Jewels</small></div><div><b>30.5</b><small>Diameter mm</small></div></div>
+        <ul><li>Start, stop and reset with the real pushers</li><li>X-ray the bridges, lift the rotor, explode it</li><li>Slow motion down to 1/32 to see the escapement</li></ul>
+        <div class="go"><span class="cp">Open the watch</span><span class="cp" style="color:var(--red)">→</span></div>
+      </div>
+    </a>
+  </div>
+</section>
+
+<section id="how" style="padding-top:0">
+  <div class="sh"><h2>How it works</h2><span class="cp mu">One input drives everything</span></div>
+  <div class="how">
+    <div><b>01</b><span class="cp">One number</span><p>The engine runs from crank angle and the watch from the movement's own time. Every part's position and every readout is a function of that one value, so nothing drifts.</p></div>
+    <div><b>02</b><span class="cp">Real dimensions</span><p>Bore, stroke, rod length, firing order, beat rate and power reserve come from published specs. The pistons follow the exact slider-crank equation.</p></div>
+    <div><b>03</b><span class="cp">Open it up</span><p>The part doing the work opens up: cut the liners, x-ray the bridges, explode the layers, isolate one cylinder. Drag to orbit and scroll to zoom.</p></div>
+  </div>
+</section>
+
+<footer>
+  <span>Study models built in three.js with the open-source <a href="https://github.com/elvarofficial/teardown">teardown</a> kit (MIT). Not affiliated with Lamborghini, Audi or Rolex.</span>
+  <span>Watch tooth counts are illustrative; the ratios are real.</span>
+</footer>
+<script>
+(function() {
+ 'use strict';
+ function U() {
+  return String.fromCharCode.apply(null, arguments);
+ }
+ var CHARSETS = {
+  standard: ' .:-=+*#%@',
+  blocks: ' .:' + U(9617, 9618, 9619, 9608) + '',
+  dots: ' .' + U(183) + ':' + U(8226) + '',
+  binary: ' 01',
+  donut: ' .,-~:;=!*#$@',
+  photo: " .'" + '`^",:;Il!i><~+_-?][}{1)(|/tfjrxnuvczXYUJCLQ0OZmwqpdbkhao*#MW&8%B@$',
+  bars: ' ' + U(9601, 9602, 9603, 9604, 9605, 9606, 9607, 9608) + '',
+  shade: ' ' + U(9617, 9618, 9619, 9608) + '',
+  braille: ' ' + U(10241, 10243, 10247, 10311, 10319, 10335, 10367, 10495) + '',
+  stars: ' .' + U(183) + '*' + U(10022, 9733) + '',
+  circles: ' .' + U(183, 8728, 9675, 9679) + ''
+ };
+ var MATRIX_GLYPHS = '' + U(65393, 65394, 65395, 65396, 65397, 65398, 65399, 65400, 65401, 65402, 65403, 65404, 65405, 65406, 65407, 65408, 65409, 65410, 65411, 65412, 65413, 65414, 65415, 65416, 65417, 65418, 65419, 65420, 65421, 65422) + '0123456789<>=*+-/' + U(92) + '|:;ABCDEFGHKLMNPRSTUXYZ';
+ var COLOURS = {
+  phosphor: {
+   bg: '#05080a',
+   ink: [ 57, 255, 122 ]
+  },
+  amber: {
+   bg: '#0a0600',
+   ink: [ 255, 176, 38 ]
+  },
+  paper: {
+   bg: '#e4e6e0',
+   ink: [ 18, 40, 24 ],
+   paper: true
+  },
+  spectrum: {
+   bg: '#05060a',
+   stops: [ [ 60, 8, 90 ], [ 40, 60, 220 ], [ 20, 210, 200 ], [ 120, 230, 40 ], [ 255, 210, 20 ], [ 255, 70, 40 ] ]
+  },
+  fire: {
+   bg: '#05030a',
+   stops: [ [ 6, 2, 8 ], [ 120, 12, 6 ], [ 210, 40, 6 ], [ 255, 120, 16 ], [ 255, 210, 70 ], [ 255, 255, 235 ] ]
+  },
+  ice: {
+   bg: '#03060c',
+   stops: [ [ 2, 4, 12 ], [ 10, 30, 90 ], [ 20, 90, 200 ], [ 40, 170, 235 ], [ 150, 225, 250 ], [ 245, 252, 255 ] ]
+  },
+  neon: {
+   bg: '#06030a',
+   stops: [ [ 10, 4, 14 ], [ 210, 30, 190 ], [ 150, 30, 210 ], [ 40, 140, 235 ], [ 40, 232, 228 ], [ 156, 247, 46 ] ]
+  }
+ };
+ var LOOKS = {
+  Neo: {
+   e: 'matrix',
+   k: 'phosphor',
+   sp: 120,
+   ce: 12
+  },
+  Solaris: {
+   e: 'donut',
+   c: 'donut',
+   k: 'amber',
+   sp: 90,
+   ce: 11
+  },
+  Blueprint: {
+   e: 'plasma',
+   c: 'blocks',
+   k: 'paper',
+   sp: 80,
+   ce: 12
+  },
+  Mono: {
+   e: 'donut',
+   c: 'standard',
+   k: 'paper',
+   sp: 70,
+   ce: 10
+  },
+  Signal: {
+   e: 'plasma',
+   c: 'binary',
+   k: 'phosphor',
+   sp: 140,
+   ce: 10
+  },
+  Ember: {
+   e: 'matrix',
+   c: 'standard',
+   k: 'amber',
+   sp: 100,
+   ce: 12
+  },
+  Inferno: {
+   c: 'standard',
+   k: 'fire',
+   sp: 160,
+   ce: 11
+  },
+  Drift: {
+   c: 'standard',
+   k: 'spectrum',
+   sp: 55,
+   ce: 10
+  },
+  Aurora: {
+   c: 'blocks',
+   k: 'ice',
+   sp: 80,
+   ce: 12
+  },
+  Voltage: {
+   c: 'photo',
+   k: 'neon',
+   sp: 170,
+   ce: 10
+  },
+  Noir: {
+   c: 'standard',
+   k: 'paper',
+   sp: 50,
+   ce: 11
+  }
+ };
+ function clamp01(v) {
+  return v < 0 ? 0 : v > 1 ? 1 : v;
+ }
+ function gradient(stops, l) {
+  var n = stops.length - 1, x = clamp01(l) * n, i = Math.min(n - 1, Math.floor(x)), f = x - i;
+  var a = stops[i], b = stops[i + 1];
+  return [ Math.round(a[0] + (b[0] - a[0]) * f), Math.round(a[1] + (b[1] - a[1]) * f), Math.round(a[2] + (b[2] - a[2]) * f) ];
+ }
+ function glyph(ramp, l) {
+  var idx = Math.round(clamp01(l) * (ramp.length - 1));
+  return ramp.charAt(idx);
+ }
+ var ENGINES = {
+  plasma: function(st, t) {
+   for (var y = 0; y < st.rows; y++) for (var x = 0; x < st.cols; x++) {
+    var u = x / st.cols * 6, v = y / st.rows * 6;
+    var s = Math.sin(u + t) + Math.sin(v * 1.3 - t * .8) + Math.sin((u + v) * .7 + t * .6) + Math.sin(Math.sqrt((u - 3) * (u - 3) + (v - 3) * (v - 3)) * 1.5 - t);
+    st.lum[y * st.cols + x] = (s + 4) / 8;
+   }
+  },
+  donut: function(st, t) {
+   var cols = st.cols, rows = st.rows, lum = st.lum, z = st.zbuf;
+   lum.fill(0);
+   z.fill(0);
+   var A = t * .8, B = t * .4, cA = Math.cos(A), sA = Math.sin(A), cB = Math.cos(B), sB = Math.sin(B);
+   var K1 = Math.min(cols, rows * 2) * .35 * 5 / 3;
+   for (var th = 0; th < 6.283; th += .07) {
+    var ct = Math.cos(th), stt = Math.sin(th);
+    for (var ph = 0; ph < 6.283; ph += .02) {
+     var cp = Math.cos(ph), sp = Math.sin(ph);
+     var cx = 2 + ct, cy = stt;
+     var x = cx * (cB * cp + sA * sB * sp) - cy * cA * sB;
+     var y = cx * (sB * cp - sA * cB * sp) + cy * cA * cB;
+     var zz = 5 + cA * cx * sp + cy * sA, ooz = 1 / zz;
+     var xp = Math.floor(cols / 2 + K1 * ooz * x);
+     var yp = Math.floor(rows / 2 - K1 * ooz * y * .5);
+     if (xp < 0 || xp >= cols || yp < 0 || yp >= rows) continue;
+     var L = cp * ct * sB - cA * ct * sp - sA * stt + cB * (cA * stt - ct * sA * sp);
+     var i = yp * cols + xp;
+     if (ooz > z[i]) {
+      z[i] = ooz;
+      lum[i] = L > 0 ? Math.min(1, .15 + L / 1.5) : .08;
+     }
+    }
+   }
+  },
+  matrix: function(st, t, dt) {
+   var cols = st.cols, rows = st.rows;
+   if (!st.drops || st.drops.length !== cols) {
+    st.drops = [];
+    for (var c = 0; c < cols; c++) st.drops.push(Math.random() * rows);
+    st.trail = new Float32Array(cols * rows);
+    st.chars = [];
+    for (var k = 0; k < cols * rows; k++) st.chars.push(MATRIX_GLYPHS.charAt(Math.random() * MATRIX_GLYPHS.length | 0));
+   }
+   for (var j = 0; j < st.trail.length; j++) st.trail[j] *= Math.pow(.88, dt * 60);
+   for (var x = 0; x < cols; x++) {
+    st.drops[x] += dt * 18 * (.6 + x * 7919 % 10 / 20);
+    if (st.drops[x] > rows + 10) st.drops[x] = -Math.random() * 20;
+    var yy = Math.floor(st.drops[x]);
+    if (yy >= 0 && yy < rows) {
+     st.trail[yy * cols + x] = 1;
+     if (Math.random() < .3) st.chars[yy * cols + x] = MATRIX_GLYPHS.charAt(Math.random() * MATRIX_GLYPHS.length | 0);
+    }
+   }
+   st.lum.set(st.trail);
+  },
+  fire: function(st, t, dt) {
+   var cols = st.cols, rows = st.rows;
+   if (!st.heat || st.heat.length !== cols * rows) st.heat = new Float32Array(cols * rows);
+   var h = st.heat;
+   for (var x = 0; x < cols; x++) h[(rows - 1) * cols + x] = .7 + Math.random() * .3;
+   for (var y = 0; y < rows - 1; y++) for (var x2 = 0; x2 < cols; x2++) {
+    var src = Math.min(cols - 1, Math.max(0, x2 + (Math.random() * 3 | 0) - 1));
+    var v = h[(y + 1) * cols + src] - Math.random() * (1.8 / rows);
+    h[y * cols + x2] = v < 0 ? 0 : v;
+   }
+   st.lum.set(h);
+  },
+  image: function(st) {
+   if (!st.imgData) {
+    st.lum.fill(0);
+    return;
+   }
+   st.lum.set(st.imgData);
+  }
+ };
+ function AsciiFX(canvas, opts) {
+  opts = opts || {};
+  var d = canvas.dataset;
+  var look = LOOKS[opts.look || d.look] || {};
+  this.canvas = canvas;
+  this.ctx = canvas.getContext('2d');
+  this.engine = opts.engine || d.engine || look.e || (d.image || opts.image ? 'image' : 'plasma');
+  this.charset = opts.charset || d.charset || look.c || 'standard';
+  this.colour = opts.colour || d.colour || look.k || 'phosphor';
+  this.speed = +(opts.speed || d.speed || look.sp || 100);
+  this.cell = +(opts.cell || d.cell || look.ce || 12);
+  this.contrast = +(opts.contrast || d.contrast || 100);
+  this.transparent = (opts.bg || d.bg) === 'none';
+  this.st = {};
+  this.t = 0;
+  this.reduced = typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var self = this, img = opts.image || d.image;
+  if (img) this.loadImage(img);
+  this.resize();
+  if (typeof ResizeObserver === 'function') new ResizeObserver(function() {
+   self.resize();
+  }).observe(canvas);
+  this.last = 0;
+  this.frame = function(now) {
+   var dt = self.last ? Math.min(.1, (now - self.last) / 1e3) : 1 / 60;
+   self.last = now;
+   if (!self.reduced) self.t += dt * self.speed / 100;
+   self.render(dt);
+   if (!self.reduced) self.raf = requestAnimationFrame(self.frame);
+  };
+  this.raf = requestAnimationFrame(this.frame);
+ }
+ AsciiFX.prototype.resize = function() {
+  var r = this.canvas.getBoundingClientRect(), dpr = window.devicePixelRatio || 1;
+  this.w = Math.max(1, r.width);
+  this.h = Math.max(1, r.height);
+  this.canvas.width = Math.round(this.w * dpr);
+  this.canvas.height = Math.round(this.h * dpr);
+  this.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  var st = this.st;
+  st.cw = this.cell * .6;
+  st.ch = this.cell;
+  st.cols = Math.max(1, Math.floor(this.w / st.cw));
+  st.rows = Math.max(1, Math.floor(this.h / st.ch));
+  st.lum = new Float32Array(st.cols * st.rows);
+  st.zbuf = new Float32Array(st.cols * st.rows);
+  st.drops = null;
+  st.heat = null;
+  if (this.img) this.sampleImage();
+  if (this.reduced) this.render(0);
+ };
+ AsciiFX.prototype.loadImage = function(src) {
+  var self = this, im = new Image;
+  im.crossOrigin = 'anonymous';
+  im.onload = function() {
+   self.img = im;
+   self.sampleImage();
+   if (self.reduced) self.render(0);
+  };
+  im.src = src;
+ };
+ AsciiFX.prototype.sampleImage = function() {
+  var st = this.st, c = document.createElement('canvas');
+  c.width = st.cols;
+  c.height = st.rows;
+  var x = c.getContext('2d'), im = this.img;
+  var s = Math.max(this.w / im.width, this.h / im.height);
+  var w = im.width * s / st.cw, h = im.height * s / st.ch;
+  x.drawImage(im, (st.cols - w) / 2, (st.rows - h) / 2, w, h);
+  var px = x.getImageData(0, 0, st.cols, st.rows).data, out = new Float32Array(st.cols * st.rows);
+  for (var i = 0; i < out.length; i++) out[i] = (.2126 * px[i * 4] + .7152 * px[i * 4 + 1] + .0722 * px[i * 4 + 2]) / 255;
+  st.imgData = out;
+ };
+ AsciiFX.prototype.render = function(dt) {
+  var st = this.st, ctx = this.ctx, pal = COLOURS[this.colour] || COLOURS.phosphor;
+  var ramp = CHARSETS[this.charset] || CHARSETS.standard, gamma = 100 / this.contrast;
+  (ENGINES[this.engine] || ENGINES.plasma)(st, this.t, dt || 1 / 60);
+  if (this.transparent) ctx.clearRect(0, 0, this.w, this.h); else {
+   ctx.fillStyle = pal.bg;
+   ctx.fillRect(0, 0, this.w, this.h);
+  }
+  ctx.font = st.ch + 'px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace';
+  ctx.textBaseline = 'top';
+  var isMatrix = this.engine === 'matrix', lastCol = '';
+  for (var y = 0; y < st.rows; y++) for (var x = 0; x < st.cols; x++) {
+   var i = y * st.cols + x, l = Math.pow(clamp01(st.lum[i]), gamma);
+   if (pal.paper && this.engine === 'image') l = 1 - l;
+   if (l < .02) continue;
+   var ch = isMatrix ? st.chars[i] : glyph(ramp, l);
+   if (ch === ' ') continue;
+   var rgb = pal.stops ? gradient(pal.stops, l) : pal.ink;
+   var a = pal.stops ? 1 : .25 + .75 * l;
+   var col = 'rgba(' + rgb[0] + ',' + rgb[1] + ',' + rgb[2] + ',' + a.toFixed(2) + ')';
+   if (col !== lastCol) {
+    ctx.fillStyle = col;
+    lastCol = col;
+   }
+   ctx.fillText(ch, x * st.cw, y * st.ch);
+  }
+ };
+ AsciiFX.prototype.set = function(opts) {
+  var look = LOOKS[opts.look] || {};
+  if (look.e || opts.engine) this.engine = opts.engine || look.e;
+  if (look.c || opts.charset) this.charset = opts.charset || look.c;
+  if (look.k || opts.colour) this.colour = opts.colour || look.k;
+  if (look.sp || opts.speed) this.speed = +(opts.speed || look.sp);
+  if (look.ce || opts.cell) {
+   this.cell = +(opts.cell || look.ce);
+   this.resize();
+  }
+  if (opts.contrast) this.contrast = +opts.contrast;
+  if (this.reduced) this.render(0);
+ };
+ AsciiFX.prototype.destroy = function() {
+  cancelAnimationFrame(this.raf);
+ };
+ AsciiFX.CHARSETS = CHARSETS;
+ AsciiFX.COLOURS = COLOURS;
+ AsciiFX.LOOKS = LOOKS;
+ AsciiFX._gradient = gradient;
+ AsciiFX._glyph = glyph;
+ AsciiFX._ENGINES = ENGINES;
+ if (typeof window !== 'undefined') {
+  window.AsciiFX = AsciiFX;
+  var boot = function() {
+   var els = document.querySelectorAll('canvas.ascii-fx');
+   for (var i = 0; i < els.length; i++) if (!els[i]._asciiFx) els[i]._asciiFx = new AsciiFX(els[i]);
+  };
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot); else boot();
+ }
+ if (typeof module !== 'undefined') module.exports = AsciiFX;
+})();
+</script>
+<script>
+(function() {
+ 'use strict';
+ var PALETTES = {
+  cyan: {
+   name: 'ARCHIVE CYAN',
+   bg: '#071014',
+   primary: '#d8fbf7',
+   secondary: '#64dfe6',
+   accent: '#d9ff3f'
+  },
+  solar: {
+   name: 'SOLAR TRACE',
+   bg: '#14100b',
+   primary: '#fff3d0',
+   secondary: '#ffac3d',
+   accent: '#ff5d38'
+  },
+  mono: {
+   name: 'MONO SCHEMATIC',
+   bg: '#0a0a0a',
+   primary: '#f2f0e8',
+   secondary: '#979991',
+   accent: '#ffffff'
+  },
+  violet: {
+   name: 'VIOLET DEPTH',
+   bg: '#0e0915',
+   primary: '#f5e9ff',
+   secondary: '#b583ff',
+   accent: '#ff8bd7'
+  }
+ };
+ var DITHER = {
+  cobalt: {
+   ink: '#2446e8',
+   paper: '#f3f0e7'
+  },
+  electric: {
+   ink: '#243cdd',
+   paper: '#fafafa'
+  },
+  cyan: {
+   ink: '#00a6c8',
+   paper: '#f4f5ed'
+  },
+  forest: {
+   ink: '#08704f',
+   paper: '#f1efe4'
+  },
+  signal: {
+   ink: '#ef3d2f',
+   paper: '#fff1df'
+  },
+  mono: {
+   ink: '#101417',
+   paper: '#f2efe6'
+  }
+ };
+ var MEMORY = {
+  cobalt: {
+   ink: '#243ee4',
+   paper: '#f3f0e8',
+   accent: '#ff5d38'
+  },
+  archive: {
+   ink: '#102a31',
+   paper: '#dff4ef',
+   accent: '#36d6dc'
+  },
+  signal: {
+   ink: '#17191f',
+   paper: '#f1aa72',
+   accent: '#f5eee0'
+  },
+  mono: {
+   ink: '#101214',
+   paper: '#f1f2ef',
+   accent: '#9b9f98'
+  }
+ };
+ var D = {
+  density: 50,
+  threshold: 30,
+  shapeMin: 6,
+  shapeMax: 36,
+  connection: 80,
+  lineWeight: .7,
+  scanlines: 30,
+  grain: 20,
+  baseOpacity: 70,
+  labels: false,
+  chain: false,
+  grid: false,
+  boxes: false
+ };
+ function look(o) {
+  var r = {}, k;
+  for (k in D) r[k] = D[k];
+  for (k in o) r[k] = o[k];
+  return r;
+ }
+ var LOOKS = {
+  'CONTOUR ATLAS': look({
+   palette: 'cyan',
+   primitive: 'bracket',
+   connect: 'none',
+   motion: 'none',
+   contour: 'topographic',
+   contourLevels: 18,
+   density: 35,
+   threshold: 46,
+   baseOpacity: 66,
+   scanlines: 0,
+   grain: 8
+  }),
+  'FLOW ENGRAVING': look({
+   palette: 'solar',
+   primitive: 'none',
+   connect: 'none',
+   motion: 'none',
+   contour: 'flow',
+   duotone: true,
+   baseOpacity: 28,
+   scanlines: 0,
+   grain: 12,
+   density: 24
+  }),
+  'TWIN VELOCITY': look({
+   palette: 'solar',
+   primitive: 'bracket',
+   connect: 'contour',
+   motion: 'orbit',
+   density: 29,
+   threshold: 16,
+   shapeMin: 5,
+   shapeMax: 81,
+   connection: 41,
+   lineWeight: 1.07,
+   scanlines: 71,
+   grain: 74,
+   baseOpacity: 83,
+   chain: true,
+   labels: true,
+   curtain: true
+  }),
+  'EDGE BOX ARCHITECTURE': look({
+   palette: 'cyan',
+   primitive: 'square',
+   connect: 'contour',
+   motion: 'assemble',
+   density: 72,
+   threshold: 27,
+   shapeMin: 7,
+   shapeMax: 54,
+   connection: 86,
+   scanlines: 78,
+   chain: true,
+   labels: true,
+   boxes: true
+  }),
+  'DELAUNAY PORTRAIT': look({
+   palette: 'mono',
+   primitive: 'cross',
+   connect: 'triangulate',
+   motion: 'pulse',
+   density: 84,
+   threshold: 25,
+   shapeMin: 4,
+   shapeMax: 16,
+   connection: 72,
+   lineWeight: .5,
+   scanlines: 44,
+   grain: 38
+  }),
+  'RADIAL SPECIMEN': look({
+   palette: 'solar',
+   primitive: 'circle',
+   connect: 'radial',
+   motion: 'orbit',
+   density: 48,
+   threshold: 40,
+   shapeMin: 8,
+   shapeMax: 48,
+   connection: 124,
+   lineWeight: .95,
+   scanlines: 48,
+   chain: true
+  }),
+  'ORTHO BLUEPRINT': look({
+   palette: 'violet',
+   primitive: 'bracket',
+   connect: 'orthogonal',
+   motion: 'scan',
+   density: 62,
+   threshold: 31,
+   shapeMin: 8,
+   shapeMax: 38,
+   connection: 108,
+   lineWeight: .65,
+   scanlines: 88,
+   grid: true
+  }),
+  'GHOST CONSTELLATION': look({
+   palette: 'mono',
+   primitive: 'diamond',
+   connect: 'hybrid',
+   motion: 'glitch',
+   density: 74,
+   threshold: 23,
+   shapeMin: 5,
+   shapeMax: 28,
+   connection: 58,
+   lineWeight: .45,
+   scanlines: 92,
+   grain: 58,
+   baseOpacity: 28
+  }),
+  'SPECTRAL CURTAIN / SOURCE': look({
+   palette: 'cyan',
+   primitive: 'none',
+   connect: 'none',
+   motion: 'wave',
+   curtain: true,
+   baseOpacity: 90,
+   scanlines: 6,
+   grain: 16
+  }),
+  'DITHER PRINT / COBALT': look({
+   palette: 'cyan',
+   primitive: 'none',
+   connect: 'none',
+   motion: 'none',
+   dither: 'electric',
+   scanlines: 0,
+   grain: 8
+  }),
+  'PIXEL MEMORY / COBALT': look({
+   palette: 'cyan',
+   primitive: 'none',
+   connect: 'none',
+   motion: 'scan',
+   memory: 'archive',
+   memoryPalette: 'cobalt',
+   cell: 8,
+   baseOpacity: 28,
+   scanlines: 8,
+   grain: 6
+  }),
+  'HORIZONTAL MEMORY / SOURCE': look({
+   palette: 'solar',
+   primitive: 'bracket',
+   connect: 'none',
+   motion: 'glitch',
+   memory: 'feedback',
+   memoryPalette: 'signal',
+   cell: 6,
+   density: 54,
+   threshold: 24,
+   baseOpacity: 78,
+   scanlines: 18,
+   grain: 10
+  }),
+  'GLYPH MEMORY / MONO': look({
+   palette: 'mono',
+   primitive: 'none',
+   connect: 'none',
+   motion: 'none',
+   memory: 'glyphs',
+   memoryPalette: 'mono',
+   cell: 5,
+   baseOpacity: 26,
+   scanlines: 4,
+   grain: 12
+  })
+ };
+ function rng(seed) {
+  var a = seed >>> 0;
+  return function() {
+   a = a + 1831565813 | 0;
+   var t = Math.imul(a ^ a >>> 15, 1 | a);
+   t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+   return ((t ^ t >>> 14) >>> 0) / 4294967296;
+  };
+ }
+ function hexA(h, a) {
+  var v = parseInt(h.slice(1), 16);
+  return 'rgba(' + (v >> 16 & 255) + ',' + (v >> 8 & 255) + ',' + (v & 255) + ',' + a + ')';
+ }
+ function rgb(h) {
+  var v = parseInt(h.slice(1), 16);
+  return [ v >> 16 & 255, v >> 8 & 255, v & 255 ];
+ }
+ function delaunay(pts) {
+  var n = pts.length;
+  if (n < 3) return [];
+  var minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity, i;
+  for (i = 0; i < n; i++) {
+   minX = Math.min(minX, pts[i].x);
+   minY = Math.min(minY, pts[i].y);
+   maxX = Math.max(maxX, pts[i].x);
+   maxY = Math.max(maxY, pts[i].y);
+  }
+  var dm = Math.max(maxX - minX, maxY - minY) * 20, mx = (minX + maxX) / 2, my = (minY + maxY) / 2;
+  var P = pts.map(function(p) {
+   return [ p.x, p.y ];
+  });
+  P.push([ mx - dm, my - dm ], [ mx, my + dm ], [ mx + dm, my - dm ]);
+  function circ(t) {
+   var a = P[t[0]], b = P[t[1]], c = P[t[2]], d = 2 * (a[0] * (b[1] - c[1]) + b[0] * (c[1] - a[1]) + c[0] * (a[1] - b[1]));
+   if (Math.abs(d) < 1e-12) return {
+    x: 0,
+    y: 0,
+    r: Infinity
+   };
+   var a2 = a[0] * a[0] + a[1] * a[1], b2 = b[0] * b[0] + b[1] * b[1], c2 = c[0] * c[0] + c[1] * c[1];
+   var x = (a2 * (b[1] - c[1]) + b2 * (c[1] - a[1]) + c2 * (a[1] - b[1])) / d, y = (a2 * (c[0] - b[0]) + b2 * (a[0] - c[0]) + c2 * (b[0] - a[0])) / d;
+   return {
+    x: x,
+    y: y,
+    r: (x - a[0]) * (x - a[0]) + (y - a[1]) * (y - a[1])
+   };
+  }
+  var tris = [ {
+   v: [ n, n + 1, n + 2 ]
+  } ];
+  tris[0].c = circ(tris[0].v);
+  for (i = 0; i < n; i++) {
+   var px = P[i][0], py = P[i][1], bad = [], keep = [], t;
+   for (t = 0; t < tris.length; t++) {
+    var c = tris[t].c;
+    ((px - c.x) * (px - c.x) + (py - c.y) * (py - c.y) < c.r ? bad : keep).push(tris[t]);
+   }
+   var edges = {};
+   bad.forEach(function(tr) {
+    for (var e = 0; e < 3; e++) {
+     var u = tr.v[e], w = tr.v[(e + 1) % 3], k = u < w ? u + ',' + w : w + ',' + u;
+     edges[k] = (edges[k] || 0) + 1;
+    }
+   });
+   for (var key in edges) if (edges[key] === 1) {
+    var uv = key.split(','), nt = {
+     v: [ +uv[0], +uv[1], i ]
+    };
+    nt.c = circ(nt.v);
+    keep.push(nt);
+   }
+   tris = keep;
+  }
+  return tris.filter(function(tr) {
+   return tr.v[0] < n && tr.v[1] < n && tr.v[2] < n;
+  }).map(function(tr) {
+   return tr.v;
+  });
+ }
+ function GeoFX(canvas, opts) {
+  opts = opts || {};
+  var d = canvas.dataset, self = this;
+  this.canvas = canvas;
+  this.ctx = canvas.getContext('2d');
+  this.L = LOOKS[opts.geo || d.geo] || LOOKS['EDGE BOX ARCHITECTURE'];
+  this.pal = PALETTES[opts.palette || d.palette || this.L.palette];
+  this.seed = +(opts.seed || d.seed || 7);
+  this.still = (opts.motion || d.motion) === 'none' || this.L.motion === 'none';
+  this.reduced = typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var im = new Image;
+  im.crossOrigin = 'anonymous';
+  im.onload = function() {
+   self.img = im;
+   self.resize();
+   if (!self.still && !self.reduced) self.raf = requestAnimationFrame(self.loop);
+  };
+  im.src = opts.image || d.image;
+  this.t0 = 0;
+  this.loop = function(now) {
+   if (!self.t0) self.t0 = now;
+   self.render((now - self.t0) / 1e3);
+   self.raf = requestAnimationFrame(self.loop);
+  };
+  if (typeof ResizeObserver === 'function') new ResizeObserver(function() {
+   if (self.img) self.resize();
+  }).observe(canvas);
+ }
+ GeoFX.prototype.resize = function() {
+  var r = this.canvas.getBoundingClientRect(), dpr = window.devicePixelRatio || 1;
+  this.W = Math.max(1, r.width);
+  this.H = Math.max(1, r.height);
+  this.canvas.width = Math.round(this.W * dpr);
+  this.canvas.height = Math.round(this.H * dpr);
+  this.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  this.analyse();
+  this.render(this.still || this.reduced ? 2.5 : 0);
+ };
+ GeoFX.prototype.analyse = function() {
+  var W = this.W, H = this.H, img = this.img, L = this.L, R = rng(this.seed);
+  var s = Math.max(W / img.width, H / img.height);
+  this.fit = {
+   x: (W - img.width * s) / 2,
+   y: (H - img.height * s) / 2,
+   w: img.width * s,
+   h: img.height * s
+  };
+  var aw = Math.max(16, Math.round(Math.min(W, 320))), ah = Math.max(16, Math.round(aw * H / W));
+  var c = document.createElement('canvas');
+  c.width = aw;
+  c.height = ah;
+  var x = c.getContext('2d');
+  x.drawImage(img, this.fit.x * aw / W, this.fit.y * ah / H, this.fit.w * aw / W, this.fit.h * ah / H);
+  var px = x.getImageData(0, 0, aw, ah).data, lum = new Float32Array(aw * ah), i;
+  for (i = 0; i < aw * ah; i++) lum[i] = (.2126 * px[i * 4] + .7152 * px[i * 4 + 1] + .0722 * px[i * 4 + 2]) / 255;
+  var mag = new Float32Array(aw * ah), ang = new Float32Array(aw * ah), maxM = 1e-6;
+  for (var yy = 1; yy < ah - 1; yy++) for (var xx = 1; xx < aw - 1; xx++) {
+   var k = yy * aw + xx;
+   var gx = lum[k - aw + 1] + 2 * lum[k + 1] + lum[k + aw + 1] - lum[k - aw - 1] - 2 * lum[k - 1] - lum[k + aw - 1];
+   var gy = lum[k + aw - 1] + 2 * lum[k + aw] + lum[k + aw + 1] - lum[k - aw - 1] - 2 * lum[k - aw] - lum[k - aw + 1];
+   mag[k] = Math.hypot(gx, gy);
+   ang[k] = Math.atan2(gy, gx);
+   if (mag[k] > maxM) maxM = mag[k];
+  }
+  var sample = [];
+  for (i = 0; i < mag.length; i += 7) if (mag[i] > 0) sample.push(mag[i]);
+  sample.sort(function(a, b) {
+   return a - b;
+  });
+  if (sample.length) maxM = Math.max(1e-6, sample[Math.floor(sample.length * .92)]);
+  this.A = {
+   w: aw,
+   h: ah,
+   lum: lum,
+   mag: mag,
+   ang: ang,
+   maxM: maxM,
+   px: px
+  };
+  var cell = Math.max(3, Math.round(aw / (6 + L.density * .32))), pts = [];
+  for (var cy = 0; cy < ah; cy += cell) for (var cx = 0; cx < aw; cx += cell) {
+   var best = -1, bm = 0;
+   for (var y2 = cy; y2 < Math.min(ah, cy + cell); y2++) for (var x2 = cx; x2 < Math.min(aw, cx + cell); x2++) {
+    var m = mag[y2 * aw + x2];
+    if (m > bm) {
+     bm = m;
+     best = y2 * aw + x2;
+    }
+   }
+   if (best >= 0 && bm / maxM > L.threshold / 100 * .6) pts.push({
+    x: (best % aw + .5) * W / aw,
+    y: (Math.floor(best / aw) + .5) * H / ah,
+    s: Math.min(1, bm / maxM),
+    a: ang[best],
+    r: R()
+   });
+  }
+  pts.sort(function(a, b) {
+   return b.s + b.r * .8 - (a.s + a.r * .8);
+  });
+  pts = pts.slice(0, 40 + L.density * 2);
+  pts.sort(function(a, b) {
+   return b.s - a.s;
+  });
+  this.pts = pts;
+  this.tris = L.connect === 'triangulate' || L.connect === 'hybrid' ? delaunay(this.pts) : [];
+  var sx = 0, sy = 0, sw = 0;
+  this.pts.forEach(function(p) {
+   sx += p.x * p.s;
+   sy += p.y * p.s;
+   sw += p.s;
+  });
+  this.center = sw ? {
+   x: sx / sw,
+   y: sy / sw
+  } : {
+   x: W / 2,
+   y: H / 2
+  };
+  this.cache = null;
+ };
+ GeoFX.prototype.baseLayer = function() {
+  if (this.cache) return this.cache;
+  var W = this.W, H = this.H, L = this.L, pal = this.pal, A = this.A, c = document.createElement('canvas'), dpr = window.devicePixelRatio || 1;
+  c.width = Math.round(W * dpr);
+  c.height = Math.round(H * dpr);
+  var x = c.getContext('2d');
+  x.setTransform(dpr, 0, 0, dpr, 0, 0);
+  x.fillStyle = pal.bg;
+  x.fillRect(0, 0, W, H);
+  var f = this.fit, i, j;
+  if (L.dither) {
+   var dp = DITHER[L.dither], ink = rgb(dp.ink), paper = rgb(dp.paper), cw = Math.max(1, Math.round(W / 260)), gw = Math.ceil(W / cw), gh = Math.ceil(H / cw);
+   var g = document.createElement('canvas');
+   g.width = gw;
+   g.height = gh;
+   var gx = g.getContext('2d');
+   gx.drawImage(this.img, f.x / cw, f.y / cw, f.w / cw, f.h / cw);
+   var id = gx.getImageData(0, 0, gw, gh), dd = id.data, v = new Float32Array(gw * gh);
+   for (i = 0; i < gw * gh; i++) {
+    var l = (.2126 * dd[i * 4] + .7152 * dd[i * 4 + 1] + .0722 * dd[i * 4 + 2]) / 255;
+    v[i] = Math.min(1, Math.max(0, (l - .5) * 1.62 + .5));
+   }
+   for (j = 0; j < gh; j++) for (i = 0; i < gw; i++) {
+    var k = j * gw + i, o = v[k] < .5 ? 0 : 1, e = v[k] - o, col = o ? paper : ink;
+    dd[k * 4] = col[0];
+    dd[k * 4 + 1] = col[1];
+    dd[k * 4 + 2] = col[2];
+    dd[k * 4 + 3] = 255;
+    if (i + 1 < gw) v[k + 1] += e * 7 / 16;
+    if (j + 1 < gh) {
+     if (i > 0) v[k + gw - 1] += e * 3 / 16;
+     v[k + gw] += e * 5 / 16;
+     if (i + 1 < gw) v[k + gw + 1] += e / 16;
+    }
+   }
+   gx.putImageData(id, 0, 0);
+   x.imageSmoothingEnabled = false;
+   x.drawImage(g, 0, 0, gw * cw, gh * cw);
+   x.imageSmoothingEnabled = true;
+  } else if (L.memory) {
+   var mp = MEMORY[L.memoryPalette], cs = L.cell, R = rng(this.seed + 3);
+   x.globalAlpha = L.baseOpacity / 100;
+   x.drawImage(this.img, f.x, f.y, f.w, f.h);
+   x.globalAlpha = 1;
+   var cols = Math.ceil(W / cs), rows = Math.ceil(H / cs);
+   if (L.memory === 'feedback') {
+    for (j = 0; j < rows; j++) if (R() < .35) {
+     var off = (R() - .5) * W * .25;
+     x.drawImage(c, 0, j * cs * dpr, c.width, cs * dpr, off, j * cs, W, cs);
+    }
+   } else {
+    x.font = cs * 1.25 + 'px ui-monospace, Menlo, monospace';
+    x.textBaseline = 'top';
+    for (j = 0; j < rows; j++) for (i = 0; i < cols; i++) {
+     var ax = Math.min(A.w - 1, Math.floor((i + .5) * cs * A.w / W)), ay = Math.min(A.h - 1, Math.floor((j + .5) * cs * A.h / H)), lv = A.lum[ay * A.w + ax];
+     if (L.memory === 'archive') {
+      x.fillStyle = lv > .48 ? mp.paper : mp.ink;
+      x.fillRect(i * cs, j * cs, cs - 1, cs - 1);
+     } else if (lv > .3) {
+      x.fillStyle = hexA(mp.paper, Math.min(1, lv));
+      x.fillText('01#+=-:'.charAt(Math.floor(R() * 7)), i * cs, j * cs);
+     }
+    }
+    for (var w = 0; w < 7; w++) {
+     var ww = W * (.12 + R() * .2), wh = H * (.06 + R() * .12), wx = R() * (W - ww), wy = R() * (H - wh);
+     x.save();
+     x.beginPath();
+     x.rect(wx, wy, ww, wh);
+     x.clip();
+     x.drawImage(this.img, f.x, f.y, f.w, f.h);
+     x.restore();
+     x.strokeStyle = mp.accent;
+     x.lineWidth = 1.5;
+     x.strokeRect(wx + .5, wy + .5, ww, wh);
+    }
+   }
+  } else {
+   x.globalAlpha = L.baseOpacity / 100;
+   if (L.duotone) x.filter = 'grayscale(1) contrast(1.2)';
+   x.drawImage(this.img, f.x, f.y, f.w, f.h);
+   x.filter = 'none';
+   x.globalAlpha = 1;
+   if (L.duotone) {
+    x.globalCompositeOperation = 'multiply';
+    x.fillStyle = pal.secondary;
+    x.fillRect(0, 0, W, H);
+    x.globalCompositeOperation = 'source-over';
+   }
+  }
+  if (L.contour === 'topographic') {
+   var lv2 = L.contourLevels;
+   x.fillStyle = hexA(pal.primary, .8);
+   for (j = 1; j < A.h; j++) for (i = 1; i < A.w; i++) {
+    var q = Math.floor(A.lum[j * A.w + i] * lv2);
+    if (q !== Math.floor(A.lum[j * A.w + i - 1] * lv2) || q !== Math.floor(A.lum[(j - 1) * A.w + i] * lv2)) x.fillRect(i * W / A.w, j * H / A.h, Math.max(1, W / A.w * .7), Math.max(1, H / A.h * .7));
+   }
+  } else if (L.contour === 'flow') {
+   x.strokeStyle = hexA(pal.primary, .75);
+   x.lineWidth = .8;
+   for (j = 2; j < A.h; j += 3) for (i = 2; i < A.w; i += 3) {
+    var kk = j * A.w + i, mm = A.mag[kk] / A.maxM, lu = A.lum[kk];
+    if (mm < .06 && lu < .35) continue;
+    var an = A.ang[kk] + Math.PI / 2, len = 2 + 7 * (mm + lu * .6), cx0 = i * W / A.w, cy0 = j * H / A.h;
+    x.beginPath();
+    x.moveTo(cx0 - Math.cos(an) * len, cy0 - Math.sin(an) * len);
+    x.lineTo(cx0 + Math.cos(an) * len, cy0 + Math.sin(an) * len);
+    x.stroke();
+   }
+  }
+  this.cache = c;
+  return c;
+ };
+ GeoFX.prototype.shape = function(x, prim, cx, cy, s) {
+  x.beginPath();
+  if (prim === 'circle') {
+   x.arc(cx, cy, s / 2, 0, Math.PI * 2);
+   x.stroke();
+  } else if (prim === 'square') x.strokeRect(cx - s / 2, cy - s / 2, s, s); else if (prim === 'diamond') {
+   x.moveTo(cx, cy - s / 2);
+   x.lineTo(cx + s / 2, cy);
+   x.lineTo(cx, cy + s / 2);
+   x.lineTo(cx - s / 2, cy);
+   x.closePath();
+   x.stroke();
+  } else if (prim === 'cross') {
+   x.moveTo(cx - s / 2, cy);
+   x.lineTo(cx + s / 2, cy);
+   x.moveTo(cx, cy - s / 2);
+   x.lineTo(cx, cy + s / 2);
+   x.stroke();
+  } else if (prim === 'bracket') {
+   var h = s / 2, k = s * .28;
+   x.moveTo(cx - h, cy - h + k);
+   x.lineTo(cx - h, cy - h);
+   x.lineTo(cx - h + k, cy - h);
+   x.moveTo(cx + h - k, cy - h);
+   x.lineTo(cx + h, cy - h);
+   x.lineTo(cx + h, cy - h + k);
+   x.moveTo(cx + h, cy + h - k);
+   x.lineTo(cx + h, cy + h);
+   x.lineTo(cx + h - k, cy + h);
+   x.moveTo(cx - h + k, cy + h);
+   x.lineTo(cx - h, cy + h);
+   x.lineTo(cx - h, cy + h - k);
+   x.stroke();
+  }
+ };
+ GeoFX.prototype.render = function(t) {
+  var ctx = this.ctx, W = this.W, H = this.H, L = this.L, pal = this.pal, pts = this.pts, self = this, i, j;
+  if (!pts) return;
+  var R = rng(this.seed + Math.floor(t * 8));
+  ctx.clearRect(0, 0, W, H);
+  ctx.drawImage(this.baseLayer(), 0, 0, W, H);
+  var mo = L.motion, vis = mo === 'assemble' ? Math.min(1, t % 6 / 2.5) : 1;
+  var pulse = mo === 'pulse' ? 1 + .15 * Math.sin(t * 3) : 1, rot = mo === 'orbit' ? t * .15 : 0;
+  var C = this.center, n = Math.floor(pts.length * vis), SC = Math.max(.5, Math.min(2, Math.min(W, H) / 500));
+  function P(p) {
+   if (!rot) return p;
+   var dx = p.x - C.x, dy = p.y - C.y, cs = Math.cos(rot * (.3 + p.r)), sn = Math.sin(rot * (.3 + p.r));
+   return {
+    x: C.x + dx * cs - dy * sn,
+    y: C.y + dx * sn + dy * cs,
+    s: p.s,
+    r: p.r,
+    a: p.a
+   };
+  }
+  var Q = [];
+  for (i = 0; i < pts.length; i++) Q.push(P(pts[i]));
+  if (L.curtain) {
+   for (i = 0; i < Math.min(n, 90); i++) {
+    var p0 = Q[i], len = H * .25 * (.4 + p0.s) * (mo === 'wave' ? .8 + .2 * Math.sin(t * 2 + i) : 1);
+    var gr = ctx.createLinearGradient(0, p0.y, 0, p0.y + len);
+    gr.addColorStop(0, hexA(pal.secondary, .55));
+    gr.addColorStop(1, hexA(pal.secondary, 0));
+    ctx.fillStyle = gr;
+    ctx.fillRect(p0.x - 1.5, p0.y, 3, len);
+   }
+  }
+  if (L.grid) {
+   ctx.strokeStyle = hexA(pal.secondary, .14);
+   ctx.lineWidth = 1;
+   for (i = 1; i < 12; i++) {
+    ctx.beginPath();
+    ctx.moveTo(W * i / 12, 0);
+    ctx.lineTo(W * i / 12, H);
+    ctx.moveTo(0, H * i / 12);
+    ctx.lineTo(W, H * i / 12);
+    ctx.stroke();
+   }
+  }
+  ctx.lineWidth = L.lineWeight;
+  ctx.strokeStyle = hexA(pal.secondary, .55);
+  var maxD = L.connection * Math.min(W, H) / 400;
+  ctx.beginPath();
+  if (L.connect === 'triangulate' || L.connect === 'hybrid') this.tris.forEach(function(tr) {
+   if (tr[0] >= n || tr[1] >= n || tr[2] >= n) return;
+   var a = Q[tr[0]], b = Q[tr[1]], c = Q[tr[2]];
+   if (L.connect === 'hybrid' && Math.hypot(a.x - b.x, a.y - b.y) > maxD * 1.6) return;
+   ctx.moveTo(a.x, a.y);
+   ctx.lineTo(b.x, b.y);
+   ctx.lineTo(c.x, c.y);
+   ctx.closePath();
+  });
+  if (L.connect === 'radial') {
+   for (i = 0; i < n; i++) if (Math.hypot(Q[i].x - C.x, Q[i].y - C.y) < maxD * 3) {
+    ctx.moveTo(C.x, C.y);
+    ctx.lineTo(Q[i].x, Q[i].y);
+   }
+  }
+  if (L.connect === 'contour' || L.connect === 'orthogonal' || L.connect === 'proximity') {
+   for (i = 0; i < n; i++) {
+    var best = -1, bd = Infinity;
+    for (j = 0; j < n; j++) if (j !== i) {
+     var dx = Q[j].x - Q[i].x, dy = Q[j].y - Q[i].y, dd = Math.hypot(dx, dy);
+     if (dd > maxD) continue;
+     if (L.connect === 'contour') dd *= 1.6 - Math.abs(Math.cos(Math.atan2(dy, dx) - (Q[i].a + Math.PI / 2)));
+     if (dd < bd) {
+      bd = dd;
+      best = j;
+     }
+    }
+    if (best < 0) continue;
+    ctx.moveTo(Q[i].x, Q[i].y);
+    if (L.connect === 'orthogonal') ctx.lineTo(Q[best].x, Q[i].y);
+    ctx.lineTo(Q[best].x, Q[best].y);
+   }
+  }
+  ctx.stroke();
+  if (L.connect === 'radial') {
+   ctx.strokeStyle = hexA(pal.primary, .25);
+   for (i = 1; i <= 4; i++) {
+    ctx.beginPath();
+    ctx.arc(C.x, C.y, maxD * .7 * i, 0, Math.PI * 2);
+    ctx.stroke();
+   }
+  }
+  if (L.chain) {
+   ctx.strokeStyle = hexA(pal.accent, .5);
+   ctx.lineWidth = .8;
+   for (i = 0; i < 7; i++) {
+    var an = i / 7 * Math.PI * 2 + t * .2;
+    ctx.beginPath();
+    ctx.arc(C.x + Math.cos(an) * maxD * 1.4, C.y + Math.sin(an) * maxD * 1.4, maxD * .55, 0, Math.PI * 2);
+    ctx.stroke();
+   }
+  }
+  if (L.boxes) {
+   var f = this.fit, placed = [];
+   for (i = 0; i < n && placed.length < 10; i++) {
+    var b = Q[i], bs = (L.shapeMin + (L.shapeMax - L.shapeMin) * b.s) * 1.6 * SC, bx = b.x - bs / 2, by = b.y - bs / 2;
+    if (placed.some(function(o) {
+     return Math.abs(o[0] - b.x) < (o[2] + bs) * .6 && Math.abs(o[1] - b.y) < (o[2] + bs) * .6;
+    })) continue;
+    placed.push([ b.x, b.y, bs ]);
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(bx, by, bs, bs);
+    ctx.clip();
+    ctx.translate(b.x, b.y);
+    ctx.scale(1.8, 1.8);
+    ctx.translate(-b.x, -b.y);
+    ctx.drawImage(this.img, f.x, f.y, f.w, f.h);
+    ctx.restore();
+    ctx.strokeStyle = hexA(pal.primary, .9);
+    ctx.lineWidth = 1;
+    ctx.strokeRect(bx + .5, by + .5, bs, bs);
+    ctx.fillStyle = pal.primary;
+    ctx.font = '7px ui-monospace, Menlo, monospace';
+    ctx.fillText('PATTERN ' + (placed.length < 10 ? '0' : '') + placed.length, bx + 2, by - 3);
+   }
+  }
+  ctx.lineWidth = Math.max(.6, L.lineWeight * 1.1);
+  if (L.primitive !== 'none') for (i = 0; i < n; i++) {
+   var q = Q[i], sz = (L.shapeMin + (L.shapeMax - L.shapeMin) * Math.pow(q.s, 1.5)) * pulse * SC;
+   ctx.strokeStyle = i % 9 === 0 ? pal.accent : i % 3 === 0 ? pal.secondary : pal.primary;
+   this.shape(ctx, L.primitive, q.x, q.y, sz);
+  }
+  if (L.labels) {
+   ctx.fillStyle = hexA(pal.primary, .8);
+   ctx.font = '7px ui-monospace, Menlo, monospace';
+   for (i = 0; i < Math.min(n, 18); i++) ctx.fillText(Math.round(Q[i].x) + ',' + Math.round(Q[i].y), Q[i].x + 6, Q[i].y + 10);
+  }
+  ctx.fillStyle = hexA(pal.primary, .85);
+  ctx.font = '8px ui-monospace, Menlo, monospace';
+  ctx.fillText('A-01', 8, 14);
+  var tag = Math.round(W) + ' x ' + Math.round(H);
+  ctx.fillText(tag, W - 8 - ctx.measureText(tag).width, 14);
+  ctx.fillText(pal.name + ' / ' + (L.connect || '').toUpperCase(), 8, H - 8);
+  if (mo === 'scan') {
+   var sy = t * .25 % 1 * H;
+   ctx.fillStyle = hexA(pal.accent, .18);
+   ctx.fillRect(0, sy, W, 2);
+  }
+  if (mo === 'glitch' && R() < .5) {
+   var cv = this.canvas, dpr = cv.width / W;
+   for (i = 0; i < 4; i++) {
+    var gy = R() * H, gh = 4 + R() * 18, gx = (R() - .5) * 30;
+    ctx.drawImage(cv, 0, gy * dpr, cv.width, gh * dpr, gx, gy, W, gh);
+   }
+  }
+  if (L.scanlines) {
+   ctx.fillStyle = 'rgba(0,0,0,' + L.scanlines / 100 * .28 + ')';
+   for (j = 0; j < H; j += 3) ctx.fillRect(0, j, W, 1);
+  }
+  if (L.grain) {
+   ctx.fillStyle = 'rgba(255,255,255,' + L.grain / 100 * .08 + ')';
+   for (i = 0; i < W * H / 260 * L.grain / 50; i++) ctx.fillRect(R() * W, R() * H, 1, 1);
+  }
+ };
+ GeoFX.prototype.set = function(opts) {
+  if (opts.geo && LOOKS[opts.geo]) {
+   this.L = LOOKS[opts.geo];
+   this.pal = PALETTES[this.L.palette];
+  }
+  if (opts.palette && PALETTES[opts.palette]) this.pal = PALETTES[opts.palette];
+  if (this.img) {
+   this.analyse();
+   this.render(2.5);
+  }
+ };
+ GeoFX.prototype.destroy = function() {
+  cancelAnimationFrame(this.raf);
+ };
+ GeoFX.LOOKS = LOOKS;
+ GeoFX.PALETTES = PALETTES;
+ GeoFX._delaunay = delaunay;
+ if (typeof window !== 'undefined') {
+  window.GeoFX = GeoFX;
+  var boot = function() {
+   var els = document.querySelectorAll('canvas.geo-fx');
+   for (var i = 0; i < els.length; i++) if (!els[i]._geoFx) els[i]._geoFx = new GeoFX(els[i]);
+  };
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot); else boot();
+ }
+ if (typeof module !== 'undefined') module.exports = GeoFX;
+})();
+</script>
+</body></html>
