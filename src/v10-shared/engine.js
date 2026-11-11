@@ -182,11 +182,13 @@ export function buildEngine(opts = {}) {
     const liner = add(g, new THREE.CylinderGeometry(E.bore / 2 + 2, E.bore / 2 + 2, 118, N(48), 1, true), M.glass, false);
     liner.position.y = DECK - 59;
     liner.renderOrder = 3;
-    for (const y of [DECK - 118, DECK]) {
+    const rings = [DECK - 118, DECK].map((y) => {
       const ring = add(g, new THREE.TorusGeometry(E.bore / 2 + 2.6, 1.8, N(10, 4), N(48)), M.black);
       ring.rotation.x = Math.PI / 2;
       ring.position.y = y;
-    }
+      ring.userData.y0 = y;
+      return ring;
+    });
     // the head: a black flange over the bore with a raised valve block; one group with its valves, plug and exhaust
     const head = new THREE.Group();
     g.add(head);
@@ -255,7 +257,7 @@ export function buildEngine(opts = {}) {
     // exhaust: a black bend out of the outboard port, down along the block
     const pts = [new V3(out * 50, DECK + 12, -20), new V3(out * 92, DECK + 6, -24), new V3(out * 122, DECK - 30, -24), new V3(out * 126, DECK - 90, -24)];
     add(head, new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), N(32), 15, N(18), false), M.black);
-    return {cy, g, out, charge, valves, liner, head, cage};
+    return {cy, g, out, charge, valves, liner, rings, head, cage};
   });
 
   // camshafts: one per bank through the cages, lobes over every valve
@@ -498,12 +500,17 @@ export function buildEngine(opts = {}) {
     const lay = (a) => smoother((ex - a) / 0.45);
     const eSump = lay(0);
     const eCrank = lay(0.12);
-    const DG = 390 * lay(0.25);
-    const DC = 300 * lay(0.33);
-    const DH = 200 * lay(0.42);
-    const DP = 110 * lay(0.55);
-    const DK = 110 * eCrank;
-    const DS = 190 * eSump;
+    const DG = 560 * lay(0.25);
+    const DC = 430 * lay(0.33);
+    const DH = 290 * lay(0.42);
+    const DL = 150 * lay(0.5);
+    const DP = 200 * lay(0.55);
+    const DK = 150 * eCrank;
+    const DS = 240 * eSump;
+    // the banks also come away sideways from the block, and the cylinders spread apart along the crank
+    const eSide = lay(0.18);
+    const SIDE = 120 * eSide;
+    const ZS = 1 + 0.5 * eSide;
     root.position.y = 0.17 * eSump;
     pan.position.y = -92 - DS;
     rail.position.y = -68 - DS;
@@ -524,14 +531,19 @@ export function buildEngine(opts = {}) {
       const {s, P, pin} = piston(i, th);
       const pp = pist[i];
       pp.g.position.y = s + DP;
+      const col0 = cyl[i];
+      col0.g.position.set(B.p[0] * SIDE, B.p[1] * SIDE, cy.z * ZS);
+      col0.liner.position.y = DECK - 59 + DL;
+      for (const r of col0.rings) r.position.y = r.userData.y0 + DL;
       // the rod: crank pin to piston pin
       const a = new V3(P[0], P[1], cy.z);
       const b = new V3(pin[0], pin[1], cy.z);
       tmp.subVectors(b, a);
       const len = tmp.length();
       pp.rod.position.copy(a).add(b).multiplyScalar(0.5);
-      pp.rod.position.x += DP * B.b[0];
-      pp.rod.position.y += DP * B.b[1];
+      pp.rod.position.x += DP * 0.55 * B.b[0] + B.p[0] * SIDE;
+      pp.rod.position.y += DP * 0.55 * B.b[1] + B.p[1] * SIDE;
+      pp.rod.position.z = cy.z * ZS;
       pp.rod.rotation.set(0, 0, Math.atan2(tmp.y, tmp.x) - Math.PI / 2);
       pp.beam.scale.y = len - 30;
       pp.big.position.y = -len / 2;
@@ -572,19 +584,24 @@ export function buildEngine(opts = {}) {
     // cams at half speed, gears in ratio, pulley and flywheel with the crank
     for (const c of cams) {
       const B = BANK[c.bank];
-      c.g.position.set((DECK + 112 + DC) * B.b[0], (DECK + 112 + DC) * B.b[1], 0);
+      c.g.position.set((DECK + 112 + DC) * B.b[0] + B.p[0] * SIDE, (DECK + 112 + DC) * B.b[1] + B.p[1] * SIDE, 0);
+      c.g.scale.z = ZS;
       c.g.rotation.z = cAng / 2;
     }
     crankGear.rotation.z = cAng;
-    crankGear.position.y = -DK;
+    crankGear.position.set(0, -DK, front + 110 * eCrank);
     camGears.forEach((g) => (g.rotation.z = cAng / 2));
-    idlers.forEach(({gg}) => (gg.rotation.z = -cAng * (24 / 72)));
+    idlers.forEach(({gg, bank}) => {
+      gg.rotation.z = -cAng * (24 / 72);
+      const B = BANK[bank];
+      gg.position.set(150 * B.b[0] + B.p[0] * SIDE * 1.4, 150 * B.b[1] + B.p[1] * SIDE * 1.4 + 120 * eSide, front - 2 + 200 * eCrank);
+    });
     pulley.rotation.z = cAng;
-    pulley.position.set(0, -DK, front + 44 + 90 * eCrank);
+    pulley.position.set(0, -DK, front + 44 + 300 * eCrank);
     flywheel.rotation.z = cAng;
-    flywheel.position.set(0, -DK, -290 - 90 * eCrank);
+    flywheel.position.set(0, -DK, -290 - 220 * eCrank);
     arcs.rotation.z = cAng * 0.25;
-    arcs.position.set(0, -DK, front + 66 + 90 * eCrank);
+    arcs.position.set(0, -DK, front + 66 + 300 * eCrank);
 
     // solo: one cylinder with its crank and cam, everything else away
     block.visible = all;

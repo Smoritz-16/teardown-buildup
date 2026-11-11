@@ -363,7 +363,7 @@ export function runLive() {
       act[k].style.color = on ? '#fff' : '#16181b';
       act[k].style.borderColor = on ? '#d6182b' : '#e1e3e6';
     }
-    st.frame(th, {...cam, az: cam.az * D2R, el: cam.el * D2R, d: cam.d * (1 + 0.45 * exShown), ty: cam.ty + 0.12 * exShown}, {solo: solo ? cyl - 1 : -1, charge: ov.charge, arrows: ov.arrows, explode: exShown});
+    st.frame(th, {...cam, az: cam.az * D2R, el: cam.el * D2R, d: cam.d * 1.35 * (1 + 0.6 * exShown), ty: cam.ty + 0.1 * exShown}, {solo: solo ? cyl - 1 : -1, charge: ov.charge, arrows: ov.arrows, explode: exShown});
 
     ui.root.style.display = hidden ? 'none' : '';
     for (const n of ui.root.querySelectorAll('[data-g="charts"]')) n.style.visibility = ov.charts ? '' : 'hidden';
